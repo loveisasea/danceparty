@@ -1,7 +1,8 @@
+package blockingqueue;
 
-public class DanceType {
-	public int id;
-	public String name;
+class DanceType {
+	final public int id;
+	final public String name;
 
 	public DanceType(int id, String name) {
 		this.id = id;

@@ -1,13 +1,15 @@
+package blockingqueue;
 
-public class Invitation {
 
-	public static int Result_Init = -1;
-	public static int Result_Reject = 0;
-	public static int Result_Accept = 1;
+class Invitation {
 
-	public int leaderId;
-	public int followerId;
-	public int danceTypeId;
+	final public static int Result_Init = -1;
+	final public static int Result_Reject = 0;
+	final public static int Result_Accept = 1;
+
+	final public int leaderId;
+	final public int followerId;
+	final public int danceTypeId;
 	public int result = Result_Init;
 
 	public Invitation(int leaderId, int followerId, int danceTypeId) {

@@ -1,11 +1,13 @@
+package list;
+
 import java.util.Random;
 
-public class Leader {
-	public static int Invitation_Response_Wait_Timeout = 2000;
+class Leader {
+	final public static int Invitation_Response_Wait_Timeout = 2000;
 
-	public int id;
+	final public int id;
 	private DanceParty danceParty;
-	// Ë÷ÒıÊÇdanceType£¬ÖµÊÇfollowerId
+	// ç´¢å¼•æ˜¯danceTypeï¼Œå€¼æ˜¯followerId
 	public int[] danceConfirmed;
 
 	public Leader(int id) {
@@ -23,52 +25,60 @@ public class Leader {
 	private Thread _thread = new Thread() {
 		@Override
 		public void run() {
-			Random random = new Random();
-			// Ëæ»úÑ¡ÔñÎèµ¸
+			final Random random = new Random();
+			// éšæœºé€‰æ‹©èˆè¹ˆ
 			int[] dances = new int[Leader.this.danceConfirmed.length];
 			for (int i = 0; i < dances.length; i++) {
 				dances[i] = i;
 			}
 			for (int i = 0; i < dances.length; i++) {
-				int randi = random.nextInt(dances.length - 1);
-				int temp = dances[i];
+				final int randi = random.nextInt(dances.length - 1);
+				final int temp = dances[i];
 				dances[i] = dances[randi];
 				dances[randi] = temp;
 			}
 			for (int index = 0; index < dances.length; index++) {
-				int danceTypeId = dances[index];
+				final int danceTypeId = dances[index];
 				if (Leader.this.danceConfirmed[danceTypeId] < 0) {
-					// Ëæ»ú³éÈ¡°éÎè
-					Follower[] followers = new Follower[danceParty.followers.length];
+					// éšæœºæŠ½å–ä¼´èˆ
+					final Follower[] followers = new Follower[danceParty.followers.length];
 					for (int i = 0; i < followers.length; i++) {
 						followers[i] = danceParty.followers[i];
 					}
 					for (int i = 0; i < followers.length; i++) {
-						int randi = random.nextInt(followers.length - 1);
+						final int randi = random.nextInt(followers.length - 1);
 						Follower temp = followers[i];
 						followers[i] = followers[randi];
 						followers[randi] = temp;
 					}
 
 					for (Follower follower : followers) {
-						Invitation inv = new Invitation(Leader.this.id, follower.id, danceTypeId);
+						final Invitation inv = new Invitation(Leader.this.id, follower.id, danceTypeId);
 						synchronized (inv) {
 							try {
 								follower.addInvitation(inv);
-								System.out.println(String.format("%s·¢ËÍÑûÇë%s...", Leader.this, inv));
+								if (DanceParty.isDebug){
+									System.out.println(String.format("%så‘é€é‚€è¯·%s...", Leader.this, inv));
+								}
 								inv.wait(Invitation_Response_Wait_Timeout); 
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
 						}
 						if (inv.result == Invitation.Result_Init) {
-							System.out.println(String.format("%sµÈ´ı³¬Ê±%s", Leader.this, inv));
+							if (DanceParty.isDebug){
+								System.out.println(String.format("%sç­‰å¾…è¶…æ—¶%s", Leader.this, inv));
+							}
 						} else if (inv.result == Invitation.Result_Accept) {
 							Leader.this.danceConfirmed[inv.danceTypeId] = inv.followerId;
-							System.out.println(String.format("%sÊÕµ½ÁË½ÓÊÜµÄ»ØÓ¦%s====", Leader.this, inv));
+							if (DanceParty.isDebug){
+								System.out.println(String.format("%sæ”¶åˆ°äº†æ¥å—çš„å›åº”%s====", Leader.this, inv));
+							}
 							break;
 						} else if (inv.result == Invitation.Result_Reject) {
-							System.out.println(String.format("%sÊÕµ½ÁË¾Ü¾øÑûÇëµÄ»ØÓ¦%s", Leader.this, inv)); 
+							if (DanceParty.isDebug){
+								System.out.println(String.format("%sæ”¶åˆ°äº†æ‹’ç»é‚€è¯·çš„å›åº”%s", Leader.this, inv)); 
+							}
 						}
 					}
 				}

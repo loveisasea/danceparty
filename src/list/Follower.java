@@ -1,18 +1,19 @@
- 
+package list;
+
 import java.util.LinkedList; 
 
-public class Follower {
-	//¸úÍ¬Ò»¸öleader×î¶àÖ»ÄÜÌøÖ§Îè
-	public static int Max_SameLeader_Dance_Count = 2;
+class Follower {
+	//è·ŸåŒä¸€ä¸ªleaderæœ€å¤šåªèƒ½è·³æ”¯èˆ
+	final public static int Max_SameLeader_Dance_Count = 2;
 
-	public int id;
+	final public int id;
 	private DanceParty danceParty;
 
-	// ÊÜµ½µÄÑûÇë
-	private LinkedList<Invitation> invitations;
-	//Ë÷ÒıÊÇdanceType£¬ÖµÊÇleaderId
+	// å—åˆ°çš„é‚€è¯·
+	final private LinkedList<Invitation> invitations = new LinkedList<Invitation>();
+	//ç´¢å¼•æ˜¯danceTypeï¼Œå€¼æ˜¯leaderId
 	private int[] confirmedDance;
-	//Ë÷ÒıÊÇleaderId£¬ÖµÊÇÒÑ¾­match¹ıµÄ´ÎÊıcount
+	//ç´¢å¼•æ˜¯leaderIdï¼Œå€¼æ˜¯å·²ç»matchè¿‡çš„æ¬¡æ•°count
 	private int[] leaderDance;
 
 	public Follower(int id) {
@@ -20,8 +21,7 @@ public class Follower {
 	}
 
 	public void init(DanceParty danceParty) {
-		this.danceParty = danceParty;
-		this.invitations = new LinkedList<Invitation>();
+		this.danceParty = danceParty; 
 		this.confirmedDance = new int[danceParty.danceTypes.length];
 		for (int i = 0; i < this.confirmedDance.length; i++) {
 			this.confirmedDance[i] = -1;
@@ -42,7 +42,9 @@ public class Follower {
 						inv = Follower.this.invitations.poll();
 					}
 					if (inv != null) {
-						System.out.println(String.format("%sÊÕµ½ÑûÇë%s", Follower.this, inv));
+						if (DanceParty.isDebug){
+							System.out.println(String.format("%sæ”¶åˆ°é‚€è¯·%s", Follower.this, inv));
+						}
 						Follower.this.reply(inv);
 					}
 					else {
@@ -64,17 +66,23 @@ public class Follower {
 		synchronized (inv) {
 			if (this.confirmedDance[inv.danceTypeId] >= 0) {
 				inv.result = Invitation.Result_Reject;
-				System.out.println(String.format("%s¾Ü¾øÑûÇë£¬ÒòÎªÒÑºÍ%s²ÎÓë¹ıÎèµ¸%s", this, danceParty.leaders[this.confirmedDance[inv.danceTypeId]], danceParty.danceTypes[inv.danceTypeId]));
+				if (DanceParty.isDebug){
+					System.out.println(String.format("%sæ‹’ç»é‚€è¯·ï¼Œå› ä¸ºå·²å’Œ%så‚ä¸è¿‡èˆè¹ˆ%s", this, danceParty.leaders[this.confirmedDance[inv.danceTypeId]], danceParty.danceTypes[inv.danceTypeId]));
+				}
 			}
 			else if (this.leaderDance[inv.leaderId] >= Max_SameLeader_Dance_Count) {
 				inv.result = Invitation.Result_Reject;
-				System.out.println(String.format("%s¾Ü¾øÑûÇë£¬ÒòÎªÒÑ½ÓÊÜ¹ı%sµÄ%s´ÎÑûÇë", this, danceParty.leaders[inv.leaderId], Max_SameLeader_Dance_Count));
+				if (DanceParty.isDebug){
+					System.out.println(String.format("%sæ‹’ç»é‚€è¯·ï¼Œå› ä¸ºå·²æ¥å—è¿‡%sçš„%sæ¬¡é‚€è¯·", this, danceParty.leaders[inv.leaderId], Max_SameLeader_Dance_Count));
+				}
 			}
 			else {
 				inv.result = Invitation.Result_Accept;
 				this.confirmedDance[inv.danceTypeId] = inv.leaderId;
 				this.leaderDance[inv.leaderId]++;
-				System.out.println(String.format("%s½ÓÊÜÑûÇë%s", this, inv));
+				if (DanceParty.isDebug){
+					System.out.println(String.format("%sæ¥å—é‚€è¯·%s", this, inv));
+				}
 			}
 			inv.notifyAll();
 		}
